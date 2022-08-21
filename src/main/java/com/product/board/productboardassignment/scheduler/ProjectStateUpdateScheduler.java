@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.product.board.productboardassignment.model.ProjectState;
 import com.product.board.productboardassignment.scheduler.http.RequestManager;
 import com.product.board.productboardassignment.service.ProjectStateService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,11 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @EnableScheduling
 public class ProjectStateUpdateScheduler {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectStateUpdateScheduler.class);
 
     private final ProjectStateService projectStateService;
     private final RequestManager requestManager;
@@ -38,7 +36,7 @@ public class ProjectStateUpdateScheduler {
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.HOURS)
     public void updateProjectStatsTask() {
-        LOGGER.info("Project Stats task started");
+        log.info("Project Stats task started");
         List<String> projectNames = requestManager.getProjectNames();
 
         for (String projectName : projectNames) {
@@ -51,7 +49,7 @@ public class ProjectStateUpdateScheduler {
 
             projectStateService.saveProjectState(projectState);
         }
-        LOGGER.info("Project Stats task completed");
+        log.info("Project Stats task completed");
     }
 
     private String getProjectStats(String projectId) {
@@ -77,7 +75,7 @@ public class ProjectStateUpdateScheduler {
         try {
             return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(map);
         } catch (JsonProcessingException e) {
-            LOGGER.error("Failed to map map to string", e);
+            log.error("Failed to map map to string", e);
         }
         return "";
     }

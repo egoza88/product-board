@@ -2,6 +2,7 @@ package com.product.board.productboardassignment.service;
 
 import com.product.board.productboardassignment.model.ProjectState;
 import com.product.board.productboardassignment.repository.ProjectStateRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +12,9 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class ProjectStateService {
 
@@ -24,11 +25,16 @@ public class ProjectStateService {
         this.projectStateRepository = projectStateRepository;
     }
 
-    public ResponseEntity<String> findProjectState(String name, Optional<String> isoDate) {
-        if (isoDate.isEmpty()) {
-            return findProjectStateByName(name);
+    public ResponseEntity<String> findProjectState(String projectName, Optional<String> isoDate) {
+        try {
+            if (isoDate.isEmpty()) {
+                return findProjectStateByName(projectName);
+            }
+            return findProjectStateByNameAndTime(projectName, isoDate.get());
+        } catch (Exception e) {
+            log.error("Failed to parse request for project {}", projectName, e);
         }
-        return findProjectStateByNameAndTime(name, isoDate.get());
+        return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
     }
 
     public void saveProjectState(ProjectState projectState) {
@@ -48,12 +54,13 @@ public class ProjectStateService {
 
     private ResponseEntity<String> findProjectStateByNameAndTime(String name, String date) {
         Date parsedDate = parseStringToDate(date);
-        List<ProjectState> projectStates = projectStateRepository.findByProjectNameAndDateCreatedBefore(name, parsedDate);
-        if (projectStates.isEmpty()) {
+        ProjectState projectStates = projectStateRepository.findFirstByProjectNameAndDateCreatedBeforeOrderByDateCreatedDesc(name, parsedDate);
+        if (projectStates == null) {
             return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
         }
-
-        return new ResponseEntity<>("", HttpStatus.OK);
+        return new ResponseEntity<>(
+                projectStates.getLanguageStats(),
+                HttpStatus.OK);
     }
 
     private Date parseStringToDate(String date) {

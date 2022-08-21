@@ -5,9 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.product.board.productboardassignment.scheduler.dto.RepoInfoResponse;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.Headers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,17 +15,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class RequestManager {
+    private final ObjectMapper objectMapper;
 
     @Value("${organisation.name}")
     private String organisationRepoName;
 
     @Value("${github.token}")
     private String authToken;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestManager.class);
-    private final ObjectMapper objectMapper;
 
     public RequestManager() {
         this.objectMapper = new ObjectMapper();
@@ -39,7 +37,7 @@ public class RequestManager {
                 getHeaders());
 
         if (!responseWrapper.isSuccessful()) {
-            LOGGER.error("GetProjectNames request failed. Response code: {}. Response body: {}",
+            log.error("GetProjectNames request failed. Response code: {}. Response body: {}",
                     responseWrapper.getStatusCode(), responseWrapper.getBody());
             return Collections.emptyList();
         }
@@ -49,7 +47,7 @@ public class RequestManager {
             });
             return repoInfoResponses.stream().map(RepoInfoResponse::getProjectName).toList();
         } catch (JsonProcessingException e) {
-            LOGGER.error("Jackson failed to map response body to object", e);
+            log.error("Jackson failed to map response body to object", e);
         }
 
         return Collections.emptyList();
@@ -61,7 +59,7 @@ public class RequestManager {
                 getHeaders());
 
         if (!responseWrapper.isSuccessful()) {
-            LOGGER.error("GetProjectStats request failed. Project: {}. Response code: {}. Response body: {}",
+            log.error("GetProjectStats request failed. Project: {}. Response code: {}. Response body: {}",
                     projectName, responseWrapper.getStatusCode(), responseWrapper.getBody());
             return Collections.emptyMap();
         }
@@ -69,7 +67,7 @@ public class RequestManager {
         try {
             return objectMapper.readValue(responseWrapper.getBody(), HashMap.class);
         } catch (JsonProcessingException e) {
-            LOGGER.error("Jackson failed to map response body to object", e);
+            log.error("Jackson failed to map response body to object", e);
         }
 
         return Collections.emptyMap();

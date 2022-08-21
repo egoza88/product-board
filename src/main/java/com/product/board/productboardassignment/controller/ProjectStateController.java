@@ -27,10 +27,8 @@ public class ProjectStateController {
     @ApiOperation(value = "Get project stats by id, and optionally date", produces = MediaType.APPLICATION_JSON_VALUE,
             notes = "Returns info about languages in provided project", response = String.class)
     private ResponseEntity<String> getProjectState(
-            @ApiParam(value="Date must be provided in ISO UTC format", required = true) String name,
+            @ApiParam(value = "Date must be provided in ISO UTC format", required = true) String projectName,
             Optional<String> date) {
-        return projectStateService.findProjectState(name, date);
+        return projectStateService.findProjectState(projectName, date);
     }
-
-
 }
