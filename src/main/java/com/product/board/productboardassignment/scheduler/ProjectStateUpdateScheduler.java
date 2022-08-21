@@ -36,7 +36,7 @@ public class ProjectStateUpdateScheduler {
         this.objectMapper = new ObjectMapper();
     }
 
-    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.HOURS)
     public void updateProjectStatsTask() {
         LOGGER.info("Project Stats task started");
         List<String> projectNames = requestManager.getProjectNames();
