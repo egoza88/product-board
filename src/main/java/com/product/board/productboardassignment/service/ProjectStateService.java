@@ -37,8 +37,8 @@ public class ProjectStateService {
         return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
     }
 
-    public void saveProjectState(ProjectState projectState) {
-        projectStateRepository.save(projectState);
+    public ProjectState saveProjectState(ProjectState projectState) {
+        return projectStateRepository.save(projectState);
     }
 
     private ResponseEntity<String> findProjectStateByName(String name) {

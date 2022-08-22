@@ -36,20 +36,24 @@ public class ProjectStateUpdateScheduler {
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.HOURS)
     public void updateProjectStatsTask() {
-        log.info("Project Stats task started");
-        List<String> projectNames = requestManager.getProjectNames();
+        try {
+            log.info("Project Stats task started");
+            List<String> projectNames = requestManager.getProjectNames();
 
-        for (String projectName : projectNames) {
-            String stats = getProjectStats(projectName);
+            for (String projectName : projectNames) {
+                String stats = getProjectStats(projectName);
 
-            ProjectState projectState = new ProjectState();
-            projectState.setProjectName(projectName);
-            projectState.setLanguageStats(stats);
-            projectState.setDateCreated(new Date());
+                ProjectState projectState = new ProjectState();
+                projectState.setProjectName(projectName);
+                projectState.setLanguageStats(stats);
+                projectState.setDateCreated(new Date());
 
-            projectStateService.saveProjectState(projectState);
+                projectStateService.saveProjectState(projectState);
+            }
+            log.info("Project Stats task completed");
+        } catch (Exception e) {
+            log.error("UpdateProjectStatsTask failed", e);
         }
-        log.info("Project Stats task completed");
     }
 
     private String getProjectStats(String projectId) {
